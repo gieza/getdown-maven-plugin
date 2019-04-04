@@ -3,15 +3,15 @@ package org.icestuff.getdown.maven;
 import com.threerings.getdown.tools.Digester;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.filter.*;
+import org.apache.maven.artifact.resolver.filter.AndArtifactFilter;
+import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
+import org.apache.maven.artifact.resolver.filter.ExcludesArtifactFilter;
+import org.apache.maven.artifact.resolver.filter.IncludesArtifactFilter;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.util.DirectoryScanner;
-import org.icestuff.getdown.maven.utils.ArtifactUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,26 +20,15 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Make deployable Java apps.
  */
 @Mojo(name = "updates", aggregator = true, requiresDependencyResolution = ResolutionScope.RUNTIME)
 public class MakeUpdatesMojo extends AbstractGetdownMojo {
-
-	/**
-	 * Local repository.
-	 */
-	@Parameter( defaultValue = "${localRepository}", required = true, readonly = true )
-	private ArtifactRepository localRepository;
-
-	/**
-	 * The collection of remote artifact repositories.
-	 */
-	@Parameter( defaultValue = "${project.remoteArtifactRepositories}", required = true, readonly = true )
-	private List<ArtifactRepository> remoteRepositories;
-
 
 	/**
 	 * The URL from which the client is downloaded.
@@ -118,38 +107,8 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 	@Parameter()
 	private ResourceSet[] resourceSets;
 
-    /**
-     * The configurable collection of jars that are common to all jnlpFile elements declared in
-     * plugin configuration. These jars will be output as jar elements in the resources section of
-     * every generated JNLP file and bundled into the specified output directory of the artifact
-     * produced by the project.
-     */
-    @Parameter()
-    private List<JarResource> jarResources;
-
-    /**
-     * The configurable collection of Alternative entry points as defined in Getdown Dot Text specification
-     */
-    @Parameter()
-    private List<AlternativeEntryPoint> alternativeEntryPoints;
-
-    public static class AlternativeEntryPoint {
-
-        @Parameter
-        private String aepName;
-
-        @Parameter
-        private String aepEntryClass;
-
-        @Parameter
-        private String[] appargs;
-
-        @Parameter
-        private String[] jvmargs;
-    }
-
-    @Parameter()
-	private ResourceSet[] uResourceSets;
+	@Parameter()
+	private ResourceSet[] uresourceSets;
 
 	public static class ResourceSet {
 
@@ -191,19 +150,12 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 		}
 	}
 
-	@Component
-	private ArtifactUtil artifactUtil;
-
-	public ArtifactUtil getArtifactUtil() {
-		return artifactUtil;
-	}
-
 	//
 	private Artifact artifactWithMainClass;
-	private List<Artifact> packagedJnlpArtifacts = new ArrayList<>();
-	private final List<String> modifiedJnlpArtifacts = new ArrayList<>();
+	private List<Artifact> packagedJnlpArtifacts = new ArrayList<Artifact>();
+	private final List<String> modifiedJnlpArtifacts = new ArrayList<String>();
 
-	private List<String> uResourceSetPaths;
+	private List<String> uresourceSetPaths;
 
 	private List<String> resourceSetPaths;
 
@@ -242,8 +194,8 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 		if (resourceSets != null) {
 			resourceSetPaths = copyResourceSets(resourceSets);
 		}
-		if (uResourceSets != null) {
-			uResourceSetPaths = copyResourceSets(uResourceSets);
+		if (uresourceSets != null) {
+			uresourceSetPaths = copyResourceSets(uresourceSets);
 		}
 
 		copyUIResources();
@@ -272,7 +224,7 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 
 			for (Artifact s : packagedJnlpArtifacts) {
 				String name = "";
-				if (libPath != null && !libPath.equals("")) {
+				if (!libPath.equals("")) {
 					name = libPath + "/";
 				}
 				name += getDependencyFileBasename(s, outputJarVersions);
@@ -283,16 +235,18 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 			writer.println();
 			writer.println("# Resources");
 			if (resourceSetPaths != null) {
-				for (String p : resourceSetPaths) {
-					writer.println(String.format("resource = %s", p));
+				if (resourceSetPaths != null) {
+					for (String p : resourceSetPaths) {
+						writer.println(String.format("resource = %s", p));
+					}
 				}
 			}
 			writeUIResources(writer);
 			writer.println();
 
-			if (uResourceSetPaths != null) {
+			if (uresourceSetPaths != null) {
 				writer.println("# Unpacked Resources");
-				for (String p : uResourceSetPaths) {
+				for (String p : uresourceSetPaths) {
 					writer.println(String.format("uresource = %s", p));
 				}
 				writer.println();
@@ -311,29 +265,46 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 				}
 			}
 
-			//Alternative Entry Points
-			if(alternativeEntryPoints != null) {
-				writer.println("\n# Alternative entry points for the application");
-				for (AlternativeEntryPoint alternativeEntryPoint : alternativeEntryPoints) {
-					final String aepName = alternativeEntryPoint.aepName;
-					final String aepEntryClassName = alternativeEntryPoint.aepEntryClass;
-					writer.println(String.format("%s.class = %s", aepName, aepEntryClassName));
-					if (alternativeEntryPoint.appargs != null) {
-						for (String s : alternativeEntryPoint.appargs) {
-							writer.println(String.format("%s.apparg = %s", aepName, s));
-						}
-					}
-					if (alternativeEntryPoint.jvmargs != null) {
-
-						for (String s : alternativeEntryPoint.jvmargs) {
-							writer.println(String.format("%s.jvmarg = %s", aepName, s));
-						}
-					}
-					writer.println();
-				}
-			}
+			writer.println();
+			writeJavaConfiguration(writer);
 		} finally {
 			writer.close();
+		}
+	}
+
+	@Override
+	protected void writeUIConfiguration(PrintWriter writer) {
+		super.writeUIConfiguration(writer);
+		writer.println(String.format("ui.name = %s", ui.name));
+		if (ui.background != null) {
+			writer.println(String.format("ui.background = %s", ui.background));
+		}
+		if (ui.progress != null) {
+			writer.println(String.format("ui.progress = %s", ui.progress));
+		}
+		if (ui.progressBar != null) {
+			writer.println(String.format("ui.progress_bar = %s", ui.progressBar));
+		}
+		if (ui.progressText != null) {
+			writer.println(String.format("ui.progress_text = %s", ui.progressText));
+		}
+		if (ui.status != null) {
+			writer.println(String.format("ui.status = %s", ui.status));
+		}
+		if (ui.statusText != null) {
+			writer.println(String.format("ui.status_text = %s", ui.statusText));
+		}
+		if (ui.textShadow != null) {
+			writer.println(String.format("ui.text_shadow = %s", ui.textShadow));
+		}
+		if (ui.installError != null) {
+			writer.println(String.format("ui.install_error = %s", ui.installError));
+		}
+		if (ui.hideDecorations) {
+			writer.println(String.format("ui.hide_decorations = %s", true));
+		}
+		if (ui.minShowSeconds != null) {
+			writer.println(String.format("ui.min_show_seconds = %d", ui.minShowSeconds));
 		}
 	}
 
@@ -378,50 +349,22 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 	 */
 	private void processDependencies() throws MojoExecutionException {
 
-		if (jarResources == null || jarResources.isEmpty()) {
-			processDependency(project.getArtifact());
+		processDependency(project.getArtifact());
 
-			AndArtifactFilter filter = new AndArtifactFilter();
-			// filter.add( new ScopeArtifactFilter( dependencySet.getScope() ) );
+		AndArtifactFilter filter = new AndArtifactFilter();
+		// filter.add( new ScopeArtifactFilter( dependencySet.getScope() ) );
 
-			if (dependencies != null && dependencies.getIncludes() != null && !dependencies.getIncludes().isEmpty()) {
-				filter.add(new IncludesArtifactFilter(dependencies.getIncludes()));
-			}
-			if (dependencies != null && dependencies.getExcludes() != null && !dependencies.getExcludes().isEmpty()) {
-				filter.add(new ExcludesArtifactFilter(dependencies.getExcludes()));
-			}
+		if (dependencies != null && dependencies.getIncludes() != null && !dependencies.getIncludes().isEmpty()) {
+			filter.add(new IncludesArtifactFilter(dependencies.getIncludes()));
+		}
+		if (dependencies != null && dependencies.getExcludes() != null && !dependencies.getExcludes().isEmpty()) {
+			filter.add(new ExcludesArtifactFilter(dependencies.getExcludes()));
+		}
 
-			Collection<Artifact> artifacts = excludeTransitive ? project.getDependencyArtifacts() : project.getArtifacts();
+		Collection<Artifact> artifacts = excludeTransitive ? project.getDependencyArtifacts() : project.getArtifacts();
 
-			for (Artifact artifact : artifacts) {
-				if (filter.include(artifact)) {
-					processDependency(artifact);
-				}
-			}
-
-		} else {
-
-			ArtifactUtil artifactUtil = this.getArtifactUtil();
-			Set<Artifact> artifacts = new LinkedHashSet<>();
-
-			AndArtifactFilter artifactFilter = new AndArtifactFilter();
-			// restricts to runtime and compile scope
-			artifactFilter.add(new ScopeArtifactFilter(Artifact.SCOPE_RUNTIME));
-			// restricts to not pom dependencies
-			artifactFilter.add(new InversionArtifactFilter(new TypeArtifactFilter("pom")));
-
-			for (JarResource resource : jarResources) {
-				Artifact artifactFromResource = artifactUtil.createArtifact(resource);
-
-				artifacts.add(artifactFromResource);
-
-				artifacts.addAll(
-						getArtifactUtil().resolveTransitively(artifacts, null, project.getArtifact(),
-								localRepository, remoteRepositories, artifactFilter,
-								project.getManagedVersionMap()));
-			}
-
-			for (Artifact artifact: artifacts) {
+		for (Artifact artifact : artifacts) {
+			if (filter.include(artifact)) {
 				processDependency(artifact);
 			}
 		}
