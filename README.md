@@ -26,6 +26,7 @@ based on [Webstart Maven Plugin](http://mojo.codehaus.org/webstart/webstart-mave
 * 0.0.2-SNAPSHOT - Updated Getdown version. Fixes digest file signing (thaks alapierre). Initial stub icon.
 * 0.0.3-SNAPSHOT - Fixes problem with classified artifacts. Added Java and Tracking configuration.
 * 0.0.4-SNAPSHOT - Updated to Getdown version 1.8.3. Supports custom JAR configurations and Alternative Entry Points (AEP).
+* 0.0.4a-SNAPSHOT - Fixes problem when Java configuration is only added to getdown.txt of stub directory. Adds Java configuration to getdown.txt of update directory.
 
 ## Goals
 
