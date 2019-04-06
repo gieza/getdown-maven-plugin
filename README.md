@@ -105,13 +105,13 @@ Most of this configuration maps to entries in the getdown.txt file as described 
 | allowOffline | false | Whether the getdown launcher will allow offline usage. |
 | resources | None | List of **resource** elements, each one a path to an additional resource to include. |
 | uresources | None | List of **uresource** elements, each one a path to an additional resource to include that should be unpacked. |
+| nresources | None | List of **nresource** elements, each one a path to an additional native resource (.dll, .so, etc.) that should be unpacked and added to the system defined java.library.path. |
 | alternativeEntryPoints | None | List of of **alternativeEntryPoint** elements. |
 | alternativeEntryPoint | None | Defines APE, mandatory sub-elements are **aepName**, **aepEntryClass**, optional elements are **appargs** and **jvmargs**.  |
 | aepName | None | Defines **app_id** as per **Getdown Dot Text** description |
 | aepEntryClass | None | Defines application entry point class name |
 | jarResources | None | List of **jarResource**, only listed JARs with dependencies will be added to Getdown LIB. If not defined, then project main entry point will be used for jar list build |
 | jarResource | None | Description of single **jarResource** in similar manner as for **webstart-maven-plugin** JNLP Jar resource definition |
-  
 
 ### UI
 
