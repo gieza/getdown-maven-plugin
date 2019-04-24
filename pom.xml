@@ -9,6 +9,8 @@
 
 	<properties>
 		<github.global.server>github</github.global.server>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
 	</properties>
 	
 	<description>Creates deployable, updateable java applications using Getdown (https://github.com/threerings/getdown/).</description>
@@ -101,6 +103,11 @@
 			<groupId>org.codehaus.mojo</groupId>
 			<artifactId>keytool-api-1.7</artifactId>
 			<version>1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>com.threerings.getdown</groupId>
+			<artifactId>getdown-launcher</artifactId>
+			<version>1.8.3</version>
 		</dependency>
 	</dependencies>
 
