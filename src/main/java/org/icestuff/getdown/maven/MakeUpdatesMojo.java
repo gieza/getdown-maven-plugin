@@ -403,42 +403,6 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 		}
 	}
 
-	@Override
-	protected void writeUIConfiguration(PrintWriter writer) {
-		super.writeUIConfiguration(writer);
-		writer.println(String.format("ui.name = %s", ui.name));
-		if (ui.background != null) {
-			writer.println(String.format("ui.background = %s", ui.background));
-		}
-		if (ui.progress != null) {
-			writer.println(String.format("ui.progress = %s", ui.progress));
-		}
-		if (ui.progressBar != null) {
-			writer.println(String.format("ui.progress_bar = %s", ui.progressBar));
-		}
-		if (ui.progressText != null) {
-			writer.println(String.format("ui.progress_text = %s", ui.progressText));
-		}
-		if (ui.status != null) {
-			writer.println(String.format("ui.status = %s", ui.status));
-		}
-		if (ui.statusText != null) {
-			writer.println(String.format("ui.status_text = %s", ui.statusText));
-		}
-		if (ui.textShadow != null) {
-			writer.println(String.format("ui.text_shadow = %s", ui.textShadow));
-		}
-		if (ui.installError != null) {
-			writer.println(String.format("ui.install_error = %s", ui.installError));
-		}
-		if (ui.hideDecorations) {
-			writer.println(String.format("ui.hide_decorations = %s", true));
-		}
-		if (ui.minShowSeconds != null) {
-			writer.println(String.format("ui.min_show_seconds = %d", ui.minShowSeconds));
-		}
-	}
-
 	/**
 	 * Detects improper includes/excludes configuration.
 	 * 
