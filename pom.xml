@@ -1,7 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.icestuff</groupId>
+	<parent>
+		<groupId>com.quaytex.tools</groupId>
+		<artifactId>common-parent</artifactId>
+		<version>14</version>
+	</parent>
+	<groupId>com.quaytex.plugins</groupId>
 	<artifactId>getdown-maven-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
 	<name>Getdown Maven Plugin</name>
@@ -13,18 +18,14 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 	</properties>
 	
-	<description>Creates deployable, updateable java applications using Getdown (https://github.com/threerings/getdown/).</description>
+	<description>Creates deployable, updatable java applications using Getdown (https://github.com/threerings/getdown/).</description>
 	<scm>
-		<url>https://github.com/rockfireredmoon/getdown-maven-plugin.git</url>
+		<url>https://github.com/gieza/getdown-maven-plugin.git</url>
 	</scm>
 	<inceptionYear>2014</inceptionYear>
-	<url>https://github.com/rockfireredmoon/getdown-maven-plugin</url>
-	<organization>
-		<name>Emerald Icemoon</name>
-		<url>https://github.com/rockfireredmoon</url>
-	</organization>
+	<url>https://github.com/gieza/getdown-maven-plugin</url>
 	<issueManagement>
-		<url>https://github.com/rockfireredmoon/getdown-maven-plugin/issues</url>
+		<url>https://github.com/gieza/getdown-maven-plugin/issues</url>
 	</issueManagement>
 
 	<licenses>
@@ -34,14 +35,6 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-
-	<distributionManagement>
-		<repository>
-			<id>internal.repo</id>
-			<name>Temporary Staging Repository</name>
-			<url>file://${basedir}/../getdown-maven-plugin-repository</url>
-		</repository>
-	</distributionManagement>
 
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
@@ -88,11 +81,6 @@
 			<artifactId>maven-plugin-annotations</artifactId>
 			<version>3.3</version>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.threerings</groupId>
-			<artifactId>getdown</artifactId>
-			<version>1.7.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven.shared</groupId>
