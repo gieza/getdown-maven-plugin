@@ -20,9 +20,11 @@
 	
 	<description>Creates deployable, updatable java applications using Getdown (https://github.com/threerings/getdown/).</description>
 	<scm>
-		<url>https://github.com/gieza/getdown-maven-plugin.git</url>
+		<connection>scm:git:ssh://git@github.com/gieza/getdown-maven-plugin.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/gieza/getdown-maven-plugin.git</developerConnection>
+		<url>http://github.com/gieza/getdown-maven-plugin.git</url>
+		<tag>HEAD</tag>
 	</scm>
-	<inceptionYear>2014</inceptionYear>
 	<url>https://github.com/gieza/getdown-maven-plugin</url>
 	<issueManagement>
 		<url>https://github.com/gieza/getdown-maven-plugin/issues</url>
