@@ -3,16 +3,16 @@ package org.icestuff.getdown.maven;
 import com.threerings.getdown.tools.Digester;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.resolver.filter.AndArtifactFilter;
-import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
-import org.apache.maven.artifact.resolver.filter.ExcludesArtifactFilter;
-import org.apache.maven.artifact.resolver.filter.IncludesArtifactFilter;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.filter.*;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.util.DirectoryScanner;
+import org.icestuff.getdown.maven.utils.ArtifactUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,6 +30,19 @@ import java.util.List;
  */
 @Mojo(name = "updates", aggregator = true, requiresDependencyResolution = ResolutionScope.RUNTIME, defaultPhase = LifecyclePhase.PACKAGE)
 public class MakeUpdatesMojo extends AbstractGetdownMojo {
+
+	/**
+	 * Local repository.
+	 */
+	@Parameter( defaultValue = "${localRepository}", required = true, readonly = true )
+	private ArtifactRepository localRepository;
+
+	/**
+	 * The collection of remote artifact repositories.
+	 */
+	@Parameter( defaultValue = "${project.remoteArtifactRepositories}", required = true, readonly = true )
+	private List<ArtifactRepository> remoteRepositories;
+
 
 	/**
 	 * The URL from which the client is downloaded.
@@ -126,6 +139,20 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 	@Parameter()
 	private ResourceSet[] xresources;
 
+    /**
+     * The configurable collection of jars that are common to all jnlpFile elements declared in
+     * plugin configuration. These jars will be output as jar elements in the resources section of
+     * every generated JNLP file and bundled into the specified output directory of the artifact
+     * produced by the project.
+     */
+    @Parameter()
+    private List<JarResource> jarResources;
+
+    /**
+     * The configurable collection of Alternative entry points as defined in Getdown Dot Text specification
+     */
+    @Parameter()
+    private List<AlternativeEntryPoint> alternativeEntryPoints;
 	/**
 	 * The configurable collection of Alternative entry points as defined in Getdown Dot Text specification
 	 */
@@ -229,6 +256,12 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 		}
 	}
 
+	@Component
+	private ArtifactUtil artifactUtil;
+
+	public ArtifactUtil getArtifactUtil() {
+		return artifactUtil;
+	}
 
 	class NResourcePath {
 		private String platform;
@@ -246,6 +279,8 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 		}
 
 	}
+
+
 
 	//
 	private Artifact artifactWithMainClass;
@@ -297,6 +332,7 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 		if (uresources != null) {
 			uresourceSetPaths = copyResourceSets(uresources);
 		}
+
 		if (nresources != null) {
 			nresourceSetPaths = new ArrayList<NResourcePath>();
 			for (NResourceSet s : nresources) {
@@ -507,23 +543,51 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 	 */
 	private void processDependencies() throws MojoExecutionException {
 
-		processDependency(project.getArtifact());
+		if (jarResources == null || jarResources.isEmpty()) {
+			processDependency(project.getArtifact());
 
-		AndArtifactFilter filter = new AndArtifactFilter();
-		// filter.add( new ScopeArtifactFilter( dependencySet.getScope() ) );
+			AndArtifactFilter filter = new AndArtifactFilter();
+			// filter.add( new ScopeArtifactFilter( dependencySet.getScope() ) );
 
-		if (dependencies != null && dependencies.getIncludes() != null && !dependencies.getIncludes().isEmpty()) {
-			filter.add(new IncludesArtifactFilter(dependencies.getIncludes()));
-		}
-		if (dependencies != null && dependencies.getExcludes() != null && !dependencies.getExcludes().isEmpty()) {
-			filter.add(new ExcludesArtifactFilter(dependencies.getExcludes()));
-		}
+			if (dependencies != null && dependencies.getIncludes() != null && !dependencies.getIncludes().isEmpty()) {
+				filter.add(new IncludesArtifactFilter(dependencies.getIncludes()));
+			}
+			if (dependencies != null && dependencies.getExcludes() != null && !dependencies.getExcludes().isEmpty()) {
+				filter.add(new ExcludesArtifactFilter(dependencies.getExcludes()));
+			}
 
-		@SuppressWarnings("unchecked")
-		Collection<Artifact> artifacts = excludeTransitive ? project.getDependencyArtifacts() : project.getArtifacts();
+			@SuppressWarnings("unchecked")
+			Collection<Artifact> artifacts = excludeTransitive ? project.getDependencyArtifacts() : project.getArtifacts();
 
-		for (Artifact artifact : artifacts) {
-			if (filter.include(artifact)) {
+			for (Artifact artifact : artifacts) {
+				if (filter.include(artifact)) {
+					processDependency(artifact);
+				}
+			}
+
+		} else {
+
+			ArtifactUtil artifactUtil = this.getArtifactUtil();
+			Set<Artifact> artifacts = new LinkedHashSet<>();
+
+			AndArtifactFilter artifactFilter = new AndArtifactFilter();
+			// restricts to runtime and compile scope
+			artifactFilter.add(new ScopeArtifactFilter(Artifact.SCOPE_RUNTIME));
+			// restricts to not pom dependencies
+			artifactFilter.add(new InversionArtifactFilter(new TypeArtifactFilter("pom")));
+
+			for (JarResource resource : jarResources) {
+				Artifact artifactFromResource = artifactUtil.createArtifact(resource);
+
+				artifacts.add(artifactFromResource);
+
+				artifacts.addAll(
+						getArtifactUtil().resolveTransitively(artifacts, null, project.getArtifact(),
+								localRepository, remoteRepositories, artifactFilter,
+								project.getManagedVersionMap()));
+			}
+
+			for (Artifact artifact: artifacts) {
 				processDependency(artifact);
 			}
 		}
