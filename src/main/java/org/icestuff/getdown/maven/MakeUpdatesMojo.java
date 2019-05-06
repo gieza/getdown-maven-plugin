@@ -20,9 +20,7 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Make deployable Java apps.
@@ -107,8 +105,29 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 	@Parameter()
 	private ResourceSet[] resourceSets;
 
-	@Parameter()
-	private ResourceSet[] uresourceSets;
+    /**
+     * The configurable collection of Alternative entry points as defined in Getdown Dot Text specification
+     */
+    @Parameter()
+    private List<AlternativeEntryPoint> alternativeEntryPoints;
+
+    public static class AlternativeEntryPoint {
+
+        @Parameter
+        private String aepName;
+
+        @Parameter
+        private String aepEntryClass;
+
+        @Parameter
+        private String[] appargs;
+
+        @Parameter
+        private String[] jvmargs;
+    }
+
+    @Parameter()
+	private ResourceSet[] uResourceSets;
 
 	public static class ResourceSet {
 
@@ -263,6 +282,27 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 				}
 			}
 
+			//Alternative Entry Points
+			if(alternativeEntryPoints != null) {
+				writer.println("\n# Alternative entry points for the application");
+				for (AlternativeEntryPoint alternativeEntryPoint : alternativeEntryPoints) {
+					final String aepName = alternativeEntryPoint.aepName;
+					final String aepEntryClassName = alternativeEntryPoint.aepEntryClass;
+					writer.println(String.format("%s.class = %s", aepName, aepEntryClassName));
+					if (alternativeEntryPoint.appargs != null) {
+						for (String s : alternativeEntryPoint.appargs) {
+							writer.println(String.format("%s.apparg = %s", aepName, s));
+						}
+					}
+					if (alternativeEntryPoint.jvmargs != null) {
+
+						for (String s : alternativeEntryPoint.jvmargs) {
+							writer.println(String.format("%s.jvmarg = %s", aepName, s));
+						}
+					}
+					writer.println();
+				}
+			}
 		} finally {
 			writer.close();
 		}
@@ -311,17 +351,17 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 
 		processDependency(project.getArtifact());
 
-		AndArtifactFilter filter = new AndArtifactFilter();
-		// filter.add( new ScopeArtifactFilter( dependencySet.getScope() ) );
+			AndArtifactFilter filter = new AndArtifactFilter();
+			// filter.add( new ScopeArtifactFilter( dependencySet.getScope() ) );
 
-		if (dependencies != null && dependencies.getIncludes() != null && !dependencies.getIncludes().isEmpty()) {
-			filter.add(new IncludesArtifactFilter(dependencies.getIncludes()));
-		}
-		if (dependencies != null && dependencies.getExcludes() != null && !dependencies.getExcludes().isEmpty()) {
-			filter.add(new ExcludesArtifactFilter(dependencies.getExcludes()));
-		}
+			if (dependencies != null && dependencies.getIncludes() != null && !dependencies.getIncludes().isEmpty()) {
+				filter.add(new IncludesArtifactFilter(dependencies.getIncludes()));
+			}
+			if (dependencies != null && dependencies.getExcludes() != null && !dependencies.getExcludes().isEmpty()) {
+				filter.add(new ExcludesArtifactFilter(dependencies.getExcludes()));
+			}
 
-		Collection<Artifact> artifacts = excludeTransitive ? project.getDependencyArtifacts() : project.getArtifacts();
+			Collection<Artifact> artifacts = excludeTransitive ? project.getDependencyArtifacts() : project.getArtifacts();
 
 		for (Artifact artifact : artifacts) {
 			if (filter.include(artifact)) {
