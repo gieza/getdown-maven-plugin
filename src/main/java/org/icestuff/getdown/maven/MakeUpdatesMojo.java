@@ -80,20 +80,20 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 	private boolean ignoreMissingMain;
 
 	/**
-	 * By default, Getdown will fail if it is running a non-versioned
-	 * application and cannot contact the server configured in appbase to check
-	 * for updates. If you add allow_offline = true to your getdown.txt, Getdown
-	 * will ignore such failures and allow the application to be run anyway.
+	 * By default, Getdown will fail if it is running a non-versioned application
+	 * and cannot contact the server configured in appbase to check for updates. If
+	 * you add allow_offline = true to your getdown.txt, Getdown will ignore such
+	 * failures and allow the application to be run anyway.
 	 */
 	@Parameter(defaultValue = "false")
 	private boolean allowOffline;
 
 	/**
-	 * The maximum number of downloads allowed to happen at once.
-	 * Defaults to the number of cores in your CPU - 1
+	 * The maximum number of downloads allowed to happen at once. Defaults to the
+	 * number of cores in your CPU - 1
 	 * <p>
-	 * If you're having issues, that you suspect are related to concurrency,
-	 * setting this to 1 might help.
+	 * If you're having issues, that you suspect are related to concurrency, setting
+	 * this to 1 might help.
 	 */
 	@Parameter
 	private Integer maxConcurrentDownloads;
@@ -107,9 +107,8 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 	 * When set to true, this flag indicates that a version attribute should be
 	 * output in each of the jar resource elements in the generated JNLP file.
 	 * <p/>
-	 * <strong>Note: </strong> since version 1.0-beta-5 we use the version
-	 * download protocol optimization (see
-	 * http://docs.oracle.com/javase/tutorial
+	 * <strong>Note: </strong> since version 1.0-beta-5 we use the version download
+	 * protocol optimization (see http://docs.oracle.com/javase/tutorial
 	 * /deployment/deploymentInDepth/avoidingUnnecessaryUpdateChecks.html).
 	 */
 	@Parameter(defaultValue = "false")
@@ -126,6 +125,27 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 
 	@Parameter()
 	private ResourceSet[] xresources;
+
+	/**
+	 * The configurable collection of Alternative entry points as defined in Getdown Dot Text specification
+	 */
+	@Parameter()
+	private List<AlternativeEntryPoint> alternativeEntryPoints;
+
+	public static class AlternativeEntryPoint {
+
+		@Parameter
+		private String aepName;
+
+		@Parameter
+		private String aepEntryClass;
+
+		@Parameter
+		private String[] appargs;
+
+		@Parameter
+		private String[] jvmargs;
+	}
 
 	public static class ResourceSet {
 
@@ -207,6 +227,24 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 		public void setExcludes(List<String> excludes) {
 			this.excludes = excludes;
 		}
+	}
+
+
+	class NResourcePath {
+		private String platform;
+		private String resource;
+
+		public NResourcePath(String platform, String resource) {
+			super();
+			this.platform = platform;
+			this.resource = resource;
+		}
+
+		@Override
+		public String toString() {
+			return "NResourcePath [platform=" + platform + ", resource=" + resource + "]";
+		}
+
 	}
 
 	//
@@ -397,6 +435,31 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 				writer.println("# The maximum number of downloads allowed to happen at the same time.");
 				writer.println(String.format("max_concurrent_downloads = %s", maxConcurrentDownloads));
 			}
+
+			//Alternative Entry Points
+			if(alternativeEntryPoints != null) {
+				writer.println("\n# Alternative entry points for the application");
+				for (AlternativeEntryPoint alternativeEntryPoint : alternativeEntryPoints) {
+					final String aepName = alternativeEntryPoint.aepName;
+					final String aepEntryClassName = alternativeEntryPoint.aepEntryClass;
+					writer.println(String.format("%s.class = %s", aepName, aepEntryClassName));
+					if (alternativeEntryPoint.appargs != null) {
+						for (String s : alternativeEntryPoint.appargs) {
+							writer.println(String.format("%s.apparg = %s", aepName, s));
+						}
+					}
+					if (alternativeEntryPoint.jvmargs != null) {
+
+						for (String s : alternativeEntryPoint.jvmargs) {
+							writer.println(String.format("%s.jvmarg = %s", aepName, s));
+						}
+					}
+					writer.println();
+				}
+			}
+//todo: gza to be verfied if it not a duplicatation
+			writer.println();
+			writeJavaConfiguration(writer);
 
 		} finally {
 			writer.close();
@@ -727,22 +790,5 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 		}
 
 		return containsClass;
-	}
-
-	class NResourcePath {
-		private String platform;
-		private String resource;
-
-		public NResourcePath(String platform, String resource) {
-			super();
-			this.platform = platform;
-			this.resource = resource;
-		}
-
-		@Override
-		public String toString() {
-			return "NResourcePath [platform=" + platform + ", resource=" + resource + "]";
-		}
-
 	}
 }
