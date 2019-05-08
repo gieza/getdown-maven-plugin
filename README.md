@@ -19,13 +19,13 @@ based on [Webstart Maven Plugin](http://mojo.codehaus.org/webstart/webstart-mave
 * Doesn't yet handle Versioning.
 * Doesn't yet handle Auxiliary Resources
 * Doesn't yet handle Platform-specific Configuration
-* Doesn't yet handle Alternative Entry Points
 
 ## Changes
 
 * 0.0.1-SNAPSHOT - Initial release
 * 0.0.2-SNAPSHOT - Updated Getdown version. Fixes digest file signing (thaks alapierre). Initial stub icon.
 * 0.0.3-SNAPSHOT - Fixes problem with classified artifacts. Added Java and Tracking configuration.
+* 0.0.4-SNAPSHOT - Updated to Getdown version 1.8.3. Supports custom JAR configurations and Alternative Entry Points (AEP).
 
 ## Goals
 
@@ -104,6 +104,12 @@ Most of this configuration maps to entries in the getdown.txt file as described 
 | allowOffline | false | Whether the getdown launcher will allow offline usage. |
 | resources | None | List of **resource** elements, each one a path to an additional resource to include. |
 | uresources | None | List of **uresource** elements, each one a path to an additional resource to include that should be unpacked. |
+| alternativeEntryPoints | None | List of of **alternativeEntryPoint** elements. |
+| alternativeEntryPoint | None | Defines APE, mandatory sub-elements are **aepName**, **aepEntryClass**, optional elements are **appargs** and **jvmargs**.  |
+| aepName | None | Defines **app_id** as per **Getdown Dot Text** description |
+| aepEntryClass | None | Defines application entry point class name |
+| jarResources | None | List of **jarResource**, only listed JARs with dependencies will be added to Getdown LIB. If not defined, then project main entry point will be used for jar list build |
+| jarResource | None | Description of single **jarResource** in similar manner as for **webstart-maven-plugin** JNLP Jar resource definition |
   
 
 ### UI
@@ -259,6 +265,14 @@ The following example uses some other Maven plugins to spit out stub installers 
 							<appargs>
 								<apparg>Some Argument</apparg>
 							</appargs>
+							<jarResources>
+								<jarResource>
+									<groupId>foo.bar</groupId>
+							  		<artifactId>editor</artifactId>
+							      		<version>${project.version}</version>
+							      		<mainClass>foo.bar.EditorApp</mainClass>
+							   	</jarResource>
+							</jarResources>
 							<ui>
 								<name>My App</name>
 								<icons>
@@ -272,6 +286,23 @@ The following example uses some other Maven plugins to spit out stub installers 
 								<status>20, 170, 316, 64</status>
 								<textShadow>111111</textShadow>
 							</ui>
+							<alternativeEntryPoints>
+					    			<alternativeEntryPoint>
+					      				<aepName>editor</aepName>
+					      				<aepEntryClass>foo.bar.EditorApp</aepEntryClass>
+					      				<appargs>
+										<apparg>editorarg1</apparg>
+										<apparg>editorarg2</apparg>
+					      				</appargs>
+					    			</alternativeEntryPoint>
+								<alternativeEntryPoint>
+									<aepName>editorHighMem</aepName>
+									<aepEntryClass>foo.bar.EditorApp</aepEntryClass>
+									<jvmargs>
+										<jvmarg>-mx1024M</jvmarg>
+									</jvmargs>
+								</alternativeEntryPoint>
+							</alternativeEntryPoints>
 						</configuration>
 					</execution>
 				</executions>
