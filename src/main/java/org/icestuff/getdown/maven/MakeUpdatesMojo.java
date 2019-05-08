@@ -1,6 +1,14 @@
 package org.icestuff.getdown.maven;
 
-import com.threerings.getdown.tools.Digester;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.GeneralSecurityException;
+import java.util.*;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -14,16 +22,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.icestuff.getdown.maven.utils.ArtifactUtil;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import com.threerings.getdown.tools.Digester;
 
 /**
  * Make deployable Java apps.
@@ -153,11 +152,6 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
      */
     @Parameter()
     private List<AlternativeEntryPoint> alternativeEntryPoints;
-	/**
-	 * The configurable collection of Alternative entry points as defined in Getdown Dot Text specification
-	 */
-	@Parameter()
-	private List<AlternativeEntryPoint> alternativeEntryPoints;
 
 	public static class AlternativeEntryPoint {
 
@@ -493,9 +487,6 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 					writer.println();
 				}
 			}
-//todo: gza to be verfied if it not a duplicatation
-			writer.println();
-			writeJavaConfiguration(writer);
 
 		} finally {
 			writer.close();
@@ -772,27 +763,28 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 	}
 
 	private List<String> copyResourceSets(ResourceSet[] resourceSets) throws MojoExecutionException {
-		List<String> paths = new ArrayList<String>();
+		List<String> paths = new ArrayList<>();
 		for (ResourceSet s : resourceSets) {
 			if (StringUtils.isBlank(s.getPath()))
 				throw new MojoExecutionException("<path> must be provided for a resource in a resource set.");
-			File sourceDirectory = new File(s.getPath());
-			if (!sourceDirectory.exists()) {
-				getLog().info("File does not exist " + sourceDirectory.getAbsolutePath());
-			} else {
-				if (sourceDirectory.isDirectory()) {
-					String include = s.includes == null ? "**" : Util.concat(s.includes, ", ");
-					String excludes = s.excludes == null ? Util.concat(DirectoryScanner.DEFAULTEXCLUDES, ", ")
-							: (Util.concat(DirectoryScanner.DEFAULTEXCLUDES, ", ") + Util.concat(s.excludes, ", "));
-
-					paths.addAll(Util.copyDirectoryStructure(getLog(), sourceDirectory, workDirectory, include,
-							excludes, s.getDestination(), s.getPrefix()));
-				} else {
-					paths.add(
-							Util.copyFile(getLog(), sourceDirectory, workDirectory, s.getDestination(), s.getPrefix()));
-				}
-
+			File sourcePath = new File(s.getPath());
+			if (!sourcePath.exists()) {
+				getLog().info("Cannot copy Resource: path does not exist " + sourcePath.getAbsolutePath());
+				continue;
 			}
+
+			if (sourcePath.isDirectory()) {
+				String include = s.includes == null ? "**" : Util.concat(s.includes, ", ");
+				String excludes = s.excludes == null ? Util.concat(DirectoryScanner.DEFAULTEXCLUDES, ", ")
+						: (Util.concat(DirectoryScanner.DEFAULTEXCLUDES, ", ") + Util.concat(s.excludes, ", "));
+
+				paths.addAll(Util.copyDirectoryStructure(getLog(), sourcePath, workDirectory, include,
+						excludes, s.getDestination(), s.getPrefix()));
+			} else {
+				paths.add(
+						Util.copyFile(getLog(), sourcePath, workDirectory, s.getDestination(), s.getPrefix()));
+			}
+
 		}
 		return paths;
 	}

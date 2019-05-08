@@ -30,6 +30,7 @@ based on [Webstart Maven Plugin](http://mojo.codehaus.org/webstart/webstart-mave
 * 0.0.4a-SNAPSHOT - Fixes problem when Java configuration is only added to getdown.txt of stub directory. Adds Java configuration to getdown.txt of update directory.
 * 0.9.0 - Released to Maven Central. New artifact group ID of **io.github.rockfireredmoon**. Now binds to package phase by default. Update to Getdown 1.8.x and other pull requests. Thanks to all contributors.
 * 0.9.1 - Completed implementation of resource sets.
+* 0.9.2-SNAPSHOT - Supports custom JAR configurations and Alternative Entry Points (AEP).
 
 ## Goals
 
@@ -100,6 +101,13 @@ Most of this configuration maps to entries in the getdown.txt file as described 
 | jarResource | None | Description of single **jarResource** in similar manner as for **webstart-maven-plugin** JNLP Jar resource definition |
 
 #### Resource
+| alternativeEntryPoints | None | List of of **alternativeEntryPoint** elements. |
+| alternativeEntryPoint | None | Defines APE, mandatory sub-elements are **aepName**, **aepEntryClass**, optional elements are **appargs** and **jvmargs**.  |
+| aepName | None | Defines **app_id** as per **Getdown Dot Text** description |
+| aepEntryClass | None | Defines application entry point class name |
+| jarResources | None | List of **jarResource**, only listed JARs with dependencies will be added to Getdown LIB. If not defined, then project main entry point will be used for jar list build |
+| jarResource | None | Description of single **jarResource** in similar manner as for **webstart-maven-plugin** JNLP Jar resource definition |
+  
 
 The tags `<resources>`, `<xresources>`, `<uresources>`, and `<uresources>` all act in the same manner. They can contain
 specific or ant-style wildcard paths that will be copied in as resources and added to the manifest with the appropriate key.
@@ -245,7 +253,7 @@ and  [getdown-maven-example2](https://github.com/rockfireredmoon/getdown-maven-e
 			<plugin>
 				<groupId>io.github.rockfireredmoon</groupId>
 				<artifactId>getdown-maven-plugin</artifactId>
-				<version>0.9.0</version>
+				<version>0.9.1</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -295,7 +303,7 @@ The following example uses some other Maven plugins to spit out stub installers 
 	<name>Getdown Maven Example 2</name>
 	<description>Advanced Example POM that builds update directory and native installers for Linux, Mac OS X and Windows</description>
 	<groupId>io.github.rockfireredmoon</groupId>
-	<version>0.9.0</version>
+	<version>0.9.1</version>
 	<build>
 
 		<plugins>
@@ -303,7 +311,7 @@ The following example uses some other Maven plugins to spit out stub installers 
 			<plugin>
 				<groupId>io.github.rockfireredmoon</groupId>
 				<artifactId>getdown-maven-plugin</artifactId>
-				<version>0.9.0</version>
+				<version>0.9.1</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
