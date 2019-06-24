@@ -27,7 +27,7 @@ based on [Webstart Maven Plugin](http://mojo.codehaus.org/webstart/webstart-mave
 * 0.0.3-SNAPSHOT - Fixes problem with classified artifacts. Added Java and Tracking configuration.
 * 0.0.4-SNAPSHOT - Updated to Getdown version 1.8.3. Supports custom JAR configurations and Alternative Entry Points (AEP).
 * 0.0.4a-SNAPSHOT - Fixes problem when Java configuration is only added to getdown.txt of stub directory. Adds Java configuration to getdown.txt of update directory.
-* 0.9.0-SNAPSHOT - Now binds to package phase by default. Update to Getdown 1.8.x and other pull requests. Thanks to all contributors. 
+* 0.9.0 - Released to Maven Central. Now binds to package phase by default. Update to Getdown 1.8.x and other pull requests. Thanks to all contributors. 
 
 ## Goals
 
@@ -155,12 +155,12 @@ and  [getdown-maven-example2](https://github.com/rockfireredmoon/getdown-maven-e
 	<artifactId>getdown-maven-example1</artifactId>
 	<name>Getdown Maven Example 1</name>
 	<description>Simples Example POM, builds update directory and manifest</description>
-	<groupId>org.icestuff</groupId>
+	<groupId>io.github.rockfireredmoon</groupId>
 	<version>0.9.0</version>
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.icestuff</groupId>
+				<groupId>io.github.rockfireredmoon</groupId>
 				<artifactId>getdown-maven-plugin</artifactId>
 				<version>0.9.0</version>
 				<executions>
@@ -197,16 +197,6 @@ and  [getdown-maven-example2](https://github.com/rockfireredmoon/getdown-maven-e
 			</plugin>
 		</plugins>
 	</build>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>getdown-maven-plugin-mvn-repo</id>
-			<url>https://raw.github.com/rockfireredmoon/getdown-maven-plugin/mvn-repo/</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
 </project>
 ```
 
@@ -221,16 +211,16 @@ The following example uses some other Maven plugins to spit out stub installers 
 	<artifactId>getdown-maven-example2</artifactId>
 	<name>Getdown Maven Example 2</name>
 	<description>Advanced Example POM that builds update directory and native installers for Linux, Mac OS X and Windows</description>
-	<groupId>org.icestuff</groupId>
-	<version>0.0.3-SNAPSHOT</version>
+	<groupId>io.github.rockfireredmoon</groupId>
+	<version>0.9.0</version>
 	<build>
 
 		<plugins>
 			<!-- Create the update directory, stubs etc -->
 			<plugin>
-				<groupId>org.icestuff</groupId>
+				<groupId>io.github.rockfireredmoon</groupId>
 				<artifactId>getdown-maven-plugin</artifactId>
-				<version>0.0.2-SNAPSHOT</version>
+				<version>0.9.0</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -303,7 +293,7 @@ The following example uses some other Maven plugins to spit out stub installers 
 			<plugin>
 				<artifactId>jdeb</artifactId>
 				<groupId>org.vafer</groupId>
-				<version>1.2</version>
+				<version>1.7</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -383,7 +373,7 @@ The following example uses some other Maven plugins to spit out stub installers 
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>rpm-maven-plugin</artifactId>
-				<version>2.1-alpha-4</version>
+				<version>2.2.0</version>
 				<extensions>true</extensions>
 				<executions>
 					<execution>
@@ -471,7 +461,7 @@ The following example uses some other Maven plugins to spit out stub installers 
 				of setting this (that I can see), we move it using Ant -->
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.7</version>
+				<version>1.8</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -518,7 +508,7 @@ The following example uses some other Maven plugins to spit out stub installers 
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>osxappbundle-maven-plugin</artifactId>
-				<version>1.0-alpha-3-cm</version>
+				<version>1.0.1</version>
 				<configuration>
 					<buildDirectory>target/MyApp</buildDirectory>
 					<bundleName>MyApp</bundleName>
