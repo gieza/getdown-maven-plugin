@@ -27,7 +27,7 @@ based on [Webstart Maven Plugin](http://mojo.codehaus.org/webstart/webstart-mave
 * 0.0.3-SNAPSHOT - Fixes problem with classified artifacts. Added Java and Tracking configuration.
 * 0.0.4-SNAPSHOT - Updated to Getdown version 1.8.3. Supports custom JAR configurations and Alternative Entry Points (AEP).
 * 0.0.4a-SNAPSHOT - Fixes problem when Java configuration is only added to getdown.txt of stub directory. Adds Java configuration to getdown.txt of update directory.
-* 0.9.0 - Released to Maven Central. Now binds to package phase by default. Update to Getdown 1.8.x and other pull requests. Thanks to all contributors. 
+* 0.9.0 - Released to Maven Central. New artifact group ID of **io.github.rockfireredmoon**. Now binds to package phase by default. Update to Getdown 1.8.x and other pull requests. Thanks to all contributors. 
 
 ## Goals
 
@@ -129,7 +129,7 @@ Configuration of the Java requirements.
 | versionRegex |  | Regular expression used to extract the version. |
 | downloads | None | List of **download** arguments, each made up of a **path** element, and optional **os** and **arch** elements |
 
-### Java
+### Tracking
 
 Configuration of the tracking.
 
