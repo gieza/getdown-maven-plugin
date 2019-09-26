@@ -11,13 +11,15 @@
 	<artifactId>getdown-maven-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
 	<name>Getdown Maven Plugin</name>
-	<version>0.9.1-SNAPSHOT</version>
+	<version>0.9.1</version>
 
 	<properties>
 		<github.global.server>github</github.global.server>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<getdown.version>1.8.6</getdown.version>
+	    <maven.compiler.source>1.8</maven.compiler.source>
+	    <maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 
 	<description>Creates deployable, updatable java applications using Getdown (https://github.com/threerings/getdown/).</description>
@@ -47,7 +49,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-plugin-plugin</artifactId>
-				<version>3.2</version>
+				<version>3.6.0</version>
 				<configuration>
 					<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
 				</configuration>
