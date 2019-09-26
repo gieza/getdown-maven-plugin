@@ -13,6 +13,7 @@ based on [Webstart Maven Plugin](http://mojo.codehaus.org/webstart/webstart-mave
 * Signs stub for applets
 * Custom Java Installation
 * Tracking Configuration
+* Copy resources, native resources, unpackable resource and executable resources based on patterns.
 
 ## Limitations
 
@@ -27,7 +28,8 @@ based on [Webstart Maven Plugin](http://mojo.codehaus.org/webstart/webstart-mave
 * 0.0.3-SNAPSHOT - Fixes problem with classified artifacts. Added Java and Tracking configuration.
 * 0.0.4-SNAPSHOT - Updated to Getdown version 1.8.3. Supports custom JAR configurations and Alternative Entry Points (AEP).
 * 0.0.4a-SNAPSHOT - Fixes problem when Java configuration is only added to getdown.txt of stub directory. Adds Java configuration to getdown.txt of update directory.
-* 0.9.0 - Released to Maven Central. New artifact group ID of **io.github.rockfireredmoon**. Now binds to package phase by default. Update to Getdown 1.8.x and other pull requests. Thanks to all contributors. 
+* 0.9.0 - Released to Maven Central. New artifact group ID of **io.github.rockfireredmoon**. Now binds to package phase by default. Update to Getdown 1.8.x and other pull requests. Thanks to all contributors.
+* 0.9.1 - Completed implementation of resource sets.
 
 ## Goals
 
@@ -88,6 +90,7 @@ Most of this configuration maps to entries in the getdown.txt file as described 
 | allowOffline | false | Whether the getdown launcher will allow offline usage. |
 | resources | None | List of **resource** elements, each one a path to an additional resource to include. |
 | uresources | None | List of **uresource** elements, each one a path to an additional resource to include that should be unpacked. |
+| xresources | None | List of **xresource** elements, each one a path to an additional resource to include that should be marked as executable. |
 | nresources | None | List of **nresource** elements, each one a path to an additional native resource (.dll, .so, etc.) that should be unpacked and added to the system defined java.library.path. |
 | alternativeEntryPoints | None | List of of **alternativeEntryPoint** elements. |
 | alternativeEntryPoint | None | Defines APE, mandatory sub-elements are **aepName**, **aepEntryClass**, optional elements are **appargs** and **jvmargs**.  |
@@ -95,6 +98,82 @@ Most of this configuration maps to entries in the getdown.txt file as described 
 | aepEntryClass | None | Defines application entry point class name |
 | jarResources | None | List of **jarResource**, only listed JARs with dependencies will be added to Getdown LIB. If not defined, then project main entry point will be used for jar list build |
 | jarResource | None | Description of single **jarResource** in similar manner as for **webstart-maven-plugin** JNLP Jar resource definition |
+
+#### Resource
+
+The tags `<resources>`, `<xresources>`, `<uresources>`, and `<uresources>` all act in the same manner. They can contain
+specific or ant-style wildcard paths that will be copied in as resources and added to the manifest with the appropriate key.
+All tags may also copy resources to different paths to which they are stored in the source tree using the `<destination>` and `<prefix>` tags. Native resources (`<nresources>` also supports the addtional `<platform>` and `<platforms>` tags)
+
+```xml
+...
+
+	<resources>
+		<!-- Plain files -->
+		<resource>
+			<!-- Path to a single file -->
+			<path>image1.png</path>
+		</resource>
+		<resource>
+			<!-- Path to a directory -->
+			<path>images/**/*</path>
+		</resource>
+		<resource>
+			<!-- Path to a directory, excluding some files -->
+			<path>documentation/**/*</path>
+			<excludes>
+				<exclude>**/*.doc</exclude>
+			</excludes>
+		</resource>
+		<resource>
+			<!-- Path to a directory, all matched files in a single target directory -->
+			<path>game-data/**/*</path>
+			<destination>data</destination>
+		</resource>
+		<resource>
+			<!-- Path to a directory, all matched files in a single target directory -->
+			<path>game-data/**/*</path>
+			<destination>data</destination>
+		</resource>
+	</resources>
+	
+	<xresources>
+		<!-- Executable files -->
+		<xresource>
+			<path>nativeprog.exe</path>
+		</xresource>
+	</xresources>
+	
+	<nresources>
+		<!-- Native files -->
+		<nresource>
+			<!-- Path to a single file, for multiple archs -->
+			<platforms>
+				<platform>windows-amd64</platform>
+				<platform>windows-x86</platform>
+			</platforms>
+			<path>app.dll</path>
+		</nresource>
+		
+		<nresource>
+			<!-- Path to a directory, for a single arch -->
+			<path>deps-64/**/*.dll</path>
+			<platform>windows-amd64</platform>
+		</nresource>
+	</nresources>
+
+	
+	<uresources>
+		<!-- Unpackable files -->
+		<uresource>
+			<path>archive.zip</path>
+		</uresource>
+	</uresources>
+	
+...
+
+```
+
 
 ### UI
 
