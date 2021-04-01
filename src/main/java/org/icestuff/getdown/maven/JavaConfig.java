@@ -46,4 +46,9 @@ public class JavaConfig {
 	@Parameter(property = "java.downloads")
 	JavaDownload[] downloads;
 
+	/**
+	 * Required Custom JVM version.
+	 */
+	@Parameter(property ="java.requiredCustomJvmVersion")
+	String requiredCustomJvmVersion;
 }

@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
@@ -233,10 +234,16 @@ public abstract class AbstractGetdownMojo extends AbstractMojo {
 				writer.println(formatResource("java_location", r));
 			}
 		}
-		if (java.version != null || java.minVersion != null || java.maxVersion != null || java.versionRegex != null
-				|| java.versionProp != null || java.downloads != null) {
-			writer.println();
+
+		if (java.requiredCustomJvmVersion != null) {
+			writer.println(String.format("java_required_custom_jvm_version = %s", java.requiredCustomJvmVersion ));
 		}
+
+		Stream.of(java.version, java.minVersion, java.maxVersion, java.versionRegex, java.versionProp, java.downloads,
+				java.requiredCustomJvmVersion)
+				.filter(item -> item != null)
+				.findAny()
+				.ifPresent(item -> writer.println());
 	}
 
 
