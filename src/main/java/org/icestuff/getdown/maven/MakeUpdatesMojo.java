@@ -147,6 +147,12 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
     @Parameter()
     private List<JarResource> jarResources;
 
+	/**
+	 * The configurable collection of Cleanup Glob patterns for removal of obsolete resources
+	 */
+	@Parameter()
+	private String[] cleanupPatterns;
+
     /**
      * The configurable collection of Alternative entry points as defined in Getdown Dot Text specification
      */
@@ -464,6 +470,14 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 				writer.println();
 				writer.println("# The maximum number of downloads allowed to happen at the same time.");
 				writer.println(String.format("max_concurrent_downloads = %s", maxConcurrentDownloads));
+			}
+
+			//CleanupPatterns
+			if(cleanupPatterns != null) {
+				writer.println("\n# File Cleanup Patterns");
+				for (String cleanupPattern : cleanupPatterns) {
+					writer.println(String.format("cleanup_pattern = %s", cleanupPattern));
+				}
 			}
 
 			//Alternative Entry Points
