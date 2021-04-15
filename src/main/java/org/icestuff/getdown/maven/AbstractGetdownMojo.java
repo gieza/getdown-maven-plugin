@@ -106,18 +106,18 @@ public abstract class AbstractGetdownMojo extends AbstractMojo {
 	protected void writeUIResources(PrintWriter writer) {
 		writer.println(String.format("ui.name = %s", ui.name));
 		if (ui.backgroundImage != null) {
-			writer.println(String.format("resource = %s", getResourceSetPath(ui.backgroundImage)));
+			writer.println(String.format("ui.background_image = %s", getResourceSetPath(ui.backgroundImage)));
 		}
 		if (ui.errorBackground != null) {
-			writer.println(String.format("resource = %s", getResourceSetPath(ui.errorBackground)));
+			writer.println(String.format("ui.error_background = %s", getResourceSetPath(ui.errorBackground)));
 		}
 		if (ui.icons != null) {
 			for (String i : ui.icons) {
-				writer.println(String.format("resource = %s", getResourceSetPath(i)));
+				writer.println(String.format("ui.icon = %s", getResourceSetPath(i)));
 			}
 		}
 		if (ui.progressImage != null) {
-			writer.println(String.format("resource = %s", getResourceSetPath(ui.progressImage)));
+			writer.println(String.format("ui.progress_image = %s", getResourceSetPath(ui.progressImage)));
 		}
 		if (ui.background != null) {
 			writer.println(String.format("ui.background = %s", ui.background));
