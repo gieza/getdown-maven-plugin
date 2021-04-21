@@ -54,7 +54,7 @@ public class MakeStub extends AbstractGetdownMojo {
 
 	protected void copyGetdownClient() throws MojoExecutionException {
 		getLog().info("Copying client jar");
-        Artifact getdown = (Artifact) plugin.getArtifactMap().get("com.threerings.getdown:getdown-launcher");
+        Artifact getdown = (Artifact) plugin.getArtifactMap().get("com.quaytex.getdown:getdown-launcher");
         if (getdown != null) {
 			Util.copyFile(getdown.getFile(), new File(stubWorkDirectory, "getdown.jar"));
 		} else {
