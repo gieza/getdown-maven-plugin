@@ -77,6 +77,7 @@ public class MakeStub extends AbstractGetdownMojo {
 			writeJavaConfiguration(writer);
 			writeTrackingConfiguration(writer);
 			writeMaxConcurrentDownloads(writer);
+			writeCustomParameter(writer);
 		} finally {
 			writer.close();
 		}

@@ -66,6 +66,23 @@ public abstract class AbstractGetdownMojo extends AbstractMojo {
 	protected TrackingConfig tracking = new TrackingConfig();
 
 	/**
+	 * The configurable collection of Custom parameters for easier support of Getdown.txt extensibility
+	 */
+	@Parameter()
+	private List<CustomParameter> customParameters;
+
+	public static class CustomParameter {
+		@Parameter
+		private String name;
+
+		@Parameter
+		private String os;
+
+		@Parameter
+		private String value;
+	}
+
+	/**
 	 * The path where the resources are placed within the getdown structure.
 	 */
 	@Parameter(defaultValue = "")
@@ -288,6 +305,20 @@ public abstract class AbstractGetdownMojo extends AbstractMojo {
 		}
 		if (ui.macDockIcon != null) {
 			writer.println(String.format("ui.mac_dock_icon = %s", getResourceSetPath(ui.macDockIcon)));
+		}
+	}
+
+	//Custom Parameters
+	protected void writeCustomParameter(PrintWriter writer) {
+		if (customParameters != null && !customParameters.isEmpty()) {
+			for (CustomParameter customParameter : customParameters) {
+				if (customParameter.os == null || customParameter.os.isEmpty()) {
+					writer.println(String.format("%s = %s", customParameter.name, customParameter.value));
+				} else {
+					writer.println(String.format("%s = [%s] %s", customParameter.name, customParameter.os,
+							customParameter.value));
+				}
+			}
 		}
 	}
 

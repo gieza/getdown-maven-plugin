@@ -502,6 +502,9 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 				}
 			}
 
+			//Custom Parameters
+			writeCustomParameter(writer);
+
 		} finally {
 			writer.close();
 		}
