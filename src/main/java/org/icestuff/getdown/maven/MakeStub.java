@@ -26,13 +26,21 @@ public class MakeStub extends AbstractGetdownMojo {
 	@Parameter(defaultValue = "${project.build.directory}/getdown-stub", required = true)
 	private File stubWorkDirectory;
 
+	/**
+	 * flag that disables copying of getdown.jar into stub directory.
+	 */
+	@Parameter(defaultValue = "false")
+	private boolean excludeJarFromStub;
+
 	public void execute() throws MojoExecutionException {
 		getLog().debug("using work directory " + stubWorkDirectory);
 		Util.makeDirectoryIfNecessary(stubWorkDirectory);
 		try {
 			copyUIResources();
 			makeConfigFile();
-			copyGetdownClient();
+			if (!excludeJarFromStub) {
+				copyGetdownClient();
+			}
 		} catch (MojoExecutionException e) {
 			throw e;
 		} catch (Exception e) {
@@ -47,7 +55,11 @@ public class MakeStub extends AbstractGetdownMojo {
 	protected void copyGetdownClient() throws MojoExecutionException {
 		getLog().info("Copying client jar");
         Artifact getdown = (Artifact) plugin.getArtifactMap().get("com.threerings.getdown:getdown-launcher");
-		Util.copyFile(getdown.getFile(), new File(stubWorkDirectory, "getdown.jar"));
+        if (getdown != null) {
+			Util.copyFile(getdown.getFile(), new File(stubWorkDirectory, "getdown.jar"));
+		} else {
+			getLog().error("Failed copying client jar");
+		}
 	}
 
 	protected void makeConfigFile() throws FileNotFoundException {
