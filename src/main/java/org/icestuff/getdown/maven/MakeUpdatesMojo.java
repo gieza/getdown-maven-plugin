@@ -423,7 +423,6 @@ public class MakeUpdatesMojo extends AbstractGetdownMojo {
 					}
 				}
 			}
-			writeUIResources(writer);
 			writer.println();
 
 			if (uresourceSetPaths != null) {

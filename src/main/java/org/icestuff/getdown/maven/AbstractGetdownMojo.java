@@ -120,54 +120,6 @@ public abstract class AbstractGetdownMojo extends AbstractMojo {
 		return new URLClassLoader(urls);
 	}
 
-	protected void writeUIResources(PrintWriter writer) {
-		writer.println(String.format("ui.name = %s", ui.name));
-		if (ui.backgroundImage != null) {
-			writer.println(String.format("ui.background_image = %s", getResourceSetPath(ui.backgroundImage)));
-		}
-		if (ui.errorBackground != null) {
-			writer.println(String.format("ui.error_background = %s", getResourceSetPath(ui.errorBackground)));
-		}
-		if (ui.icons != null) {
-			for (String i : ui.icons) {
-				writer.println(String.format("ui.icon = %s", getResourceSetPath(i)));
-			}
-		}
-		if (ui.progressImage != null) {
-			writer.println(String.format("ui.progress_image = %s", getResourceSetPath(ui.progressImage)));
-		}
-		if (ui.background != null) {
-			writer.println(String.format("ui.background = %s", ui.background));
-		}
-		if (ui.progress != null) {
-			writer.println(String.format("ui.progress = %s", ui.progress));
-		}
-		if (ui.progressBar != null) {
-			writer.println(String.format("ui.progress_bar = %s", ui.progressBar));
-		}
-		if (ui.progressText != null) {
-			writer.println(String.format("ui.progress_text = %s", ui.progressText));
-		}
-		if (ui.status != null) {
-			writer.println(String.format("ui.status = %s", ui.status));
-		}
-		if (ui.statusText != null) {
-			writer.println(String.format("ui.status_text = %s", ui.statusText));
-		}
-		if (ui.textShadow != null) {
-			writer.println(String.format("ui.text_shadow = %s", ui.textShadow));
-		}
-		if (ui.installError != null) {
-			writer.println(String.format("ui.install_error = %s", ui.installError));
-		}
-		if (ui.hideDecorations) {
-			writer.println(String.format("ui.hide_decorations = %s", true));
-		}
-		if (ui.minShowSeconds != null) {
-			writer.println(String.format("ui.min_show_seconds = %d", ui.minShowSeconds));
-		}
-	}
-
 	protected File getResourceSetsDirectory() {
 		if (resourceSetsPath != null) {
 			return new File(getWorkDirectory(), resourceSetsPath);
@@ -289,6 +241,7 @@ public abstract class AbstractGetdownMojo extends AbstractMojo {
 
 	protected void writeUIConfiguration(PrintWriter writer) {
 		writer.println("# UI Configuration");
+		writer.println(String.format("ui.name = %s", ui.name));
 		if (ui.backgroundImage != null) {
 			writer.println(String.format("ui.background_image = %s", getResourceSetPath(ui.backgroundImage)));
 		}
@@ -305,6 +258,36 @@ public abstract class AbstractGetdownMojo extends AbstractMojo {
 		}
 		if (ui.macDockIcon != null) {
 			writer.println(String.format("ui.mac_dock_icon = %s", getResourceSetPath(ui.macDockIcon)));
+		}
+		if (ui.background != null) {
+			writer.println(String.format("ui.background = %s", ui.background));
+		}
+		if (ui.progress != null) {
+			writer.println(String.format("ui.progress = %s", ui.progress));
+		}
+		if (ui.progressBar != null) {
+			writer.println(String.format("ui.progress_bar = %s", ui.progressBar));
+		}
+		if (ui.progressText != null) {
+			writer.println(String.format("ui.progress_text = %s", ui.progressText));
+		}
+		if (ui.status != null) {
+			writer.println(String.format("ui.status = %s", ui.status));
+		}
+		if (ui.statusText != null) {
+			writer.println(String.format("ui.status_text = %s", ui.statusText));
+		}
+		if (ui.textShadow != null) {
+			writer.println(String.format("ui.text_shadow = %s", ui.textShadow));
+		}
+		if (ui.installError != null) {
+			writer.println(String.format("ui.install_error = %s", ui.installError));
+		}
+		if (ui.hideDecorations) {
+			writer.println(String.format("ui.hide_decorations = %s", true));
+		}
+		if (ui.minShowSeconds != null) {
+			writer.println(String.format("ui.min_show_seconds = %d", ui.minShowSeconds));
 		}
 	}
 

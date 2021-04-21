@@ -72,8 +72,6 @@ public class MakeStub extends AbstractGetdownMojo {
 			writeUIConfiguration(writer);
 			writer.println();
 			writer.println("# Resources");
-			writeUIResources(writer);
-			writer.println();
 			writeJavaConfiguration(writer);
 			writeTrackingConfiguration(writer);
 			writeMaxConcurrentDownloads(writer);
